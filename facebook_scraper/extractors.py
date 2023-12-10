@@ -451,8 +451,13 @@ class PostExtractor:
             return None
 
     def extract_user_id(self) -> PartialPost:
+        match = None
+        if self.full_post_html:
+            pattern = re.compile(r'post_owner_id:"(\d+)"')
+            match = pattern.search(self.full_post_html.html)
+
         return {
-            'user_id': self.data_ft['content_owner_id_new'],
+            'user_id': self.data_ft.get("content_owner_id_new") or match.group(1) if match else None,
             'page_id': self.data_ft.get("page_id"),
         }
 
