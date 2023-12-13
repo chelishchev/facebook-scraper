@@ -332,7 +332,7 @@ class PostExtractor:
             for version, content in content_versions:
                 post_text = []
                 shared_text = []
-                nodes = content.find('p, header, span[role=presentation]')
+                nodes = content.find('p, header, span[role=presentation], div[data-ft]')
 
                 if version == "hidden_original":
                     if container_index == 0:
@@ -1125,7 +1125,7 @@ class PostExtractor:
             first=True,
         )
         comment_body_elem = comment.find(
-            '[data-sigil="comment-body"],div._14ye,div.bl', first=True
+            'div:nth-child(1) > div:nth-child(1) > div', first=True
         )
         if not comment_body_elem:
             comment_body_elem = comment.find('div>div>div', first=True)
@@ -1173,7 +1173,7 @@ class PostExtractor:
                 if comment_reactors_opt != "generator":
                     reactions["reactors"] = utils.safe_consume(reactions.get("reactors", []))
         else:
-            reactions_count = comment.find('span._14va', first=True)
+            reactions_count = comment.find('div span[id^="like_"] a[aria-label]', first=True)
             if reactions_count and len(reactions_count.text) > 0:
                 reactions_count = reactions_count.text
             else:
@@ -1265,7 +1265,7 @@ class PostExtractor:
                 for reply in comment.find("div[data-sigil='comment inline-reply']")
             ]
             replies_url = comment.find(
-                "div.async_elem[data-sigil='replies-see-more'] a[href],div[id*='comment_replies_more'] a[href]",
+                "div.async_elem[data-sigil='replies-see-more'] a[href], div[id*='comment_replies_more'] a[href]",
                 first=True,
             )
             if replies_url:
@@ -1291,7 +1291,7 @@ class PostExtractor:
         if not elem:
             logger.error("No comments area found")
             return
-        comments_selector = 'div[data-sigil="comment"]'
+        comments_selector = 'div div:nth-child(5) div:not([id^="see_next"])'
         if self.options.get("noscript"):
             comments_selector = f"{comments_area_selector}>div>div:not(id)>div"
         comments = list(elem.find(comments_selector))
@@ -1441,9 +1441,10 @@ class PostExtractor:
             url = self.post.get('post_id')
             logger.debug(f"Fetching {url}")
             try:
+                url = self.post.get('post_url').replace(FB_BASE_URL, FB_MBASIC_BASE_URL)
                 response = self.request(url)
             except exceptions.NotFound as e:
-                url = self.post.get('post_url').replace(FB_BASE_URL, FB_MOBILE_BASE_URL)
+                url = self.post.get('post_url').replace(FB_BASE_URL, FB_MBASIC_BASE_URL)
                 logger.debug(f"Fetching {url}")
                 response = self.request(url)
             if response.text.startswith("for (;;)"):

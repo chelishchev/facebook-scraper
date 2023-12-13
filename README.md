@@ -45,7 +45,7 @@ Send the unique **page name, profile name, or ID** as the first parameter and sp
 ```python
 >>> from facebook_scraper import get_posts
 
->>> for post in get_posts('nintendo', base_url="https://mbasic.facebook.com", start_url="https://mbasic.facebook.com/nintendo?v=timeline", pages=1):
+>>> for post in get_posts('NintendoAmerica', base_url="https://mbasic.facebook.com", start_url="https://mbasic.facebook.com/NintendoAmerica?v=timeline", pages=1):
 ...     print(post['text'][:50])
 ...
 The final step on the road to the Super Smash Bros
@@ -159,6 +159,9 @@ for comment in comments:
          '\n'
          'https://www.nintendo.com/amiibo/line-up/',
  'time': datetime.datetime(2019, 4, 30, 5, 0, 1),
+ 'full_text':'Don’t let this diminutive version of the Hero of Time fool you, '
+         'Young Link is just as heroic as his fully grown version! Young Link '
+         'joins the Super Smash Bros. series of amiibo figures!', # !! This will only be present if the post_text and text is truncated
  'user_id': '119240841493711',
  'username': 'Nintendo',
  'video': None,
