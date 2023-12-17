@@ -263,14 +263,22 @@ class PostExtractor:
         return post
 
     def extract_post_id(self) -> PartialPost:
-        # post id (top_level_post_id) found in data-fn is not usable anymore since data-fn is now practically empty;
-        # we can use an id on the like button to get that
-        return {
-            'post_id': self.live_data.get("ft_ent_identifier")
-                       or self.data_ft.get('top_level_post_id')
-                       or self.element.find('[id^="like_"]', first=True).attrs.get('id').split('like_')[
-                           1] if self.element.find('[id^="like_"]', first=True) else None
-        }
+        try:
+            # Attempt to extract the post ID from the 'data-store' attribute of a link with a specific 'data-sigil'
+            a_element = self.full_post_html.find('a[data-sigil*="ufi-inline-like like-reaction-flyout"]', first=True)
+            if a_element and ('data-store' in a_element.attrs):
+                post_id = json.loads(a_element.attrs['data-store'])['feedbackTarget']
+            else:
+                raise ValueError("Required element or attribute not found.")
+        except (ValueError, KeyError, json.JSONDecodeError):
+            # post id (top_level_post_id) found in data-fn is not usable anymore since data-fn is now practically empty;
+            # we can use an id on the like button to get that
+            post_id = (self.live_data.get("ft_ent_identifier") or
+                       self.data_ft.get('top_level_post_id') or
+                       self.element.find('[id^="like_"]', first=True).attrs.get('id').split('like_')[1]
+                       if self.element.find('[id^="like_"]', first=True) else None)
+
+        return {'post_id': str(post_id)}
 
     def extract_username(self) -> PartialPost:
         elem = self.element.find('h3 strong a,a.actor-link', first=True)
