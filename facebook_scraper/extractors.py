@@ -463,6 +463,12 @@ class PostExtractor:
         if self.full_post_html:
             pattern = re.compile(r'post_owner_id:"(\d+)"')
             match = pattern.search(self.full_post_html.html)
+            if not match:
+                reply_link = self.full_post_html.find('#m_story_permalink_view a[href*="/comment/replies/"]',
+                                                      first=True)
+                if reply_link:
+                    pattern = re.compile(r"comment_form_(\d+)_")
+                    match = re.search(pattern, reply_link.html)
 
         return {
             'user_id': self.data_ft.get("content_owner_id_new") or match.group(1) if match else None,
