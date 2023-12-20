@@ -340,7 +340,10 @@ class PostExtractor:
             for version, content in content_versions:
                 post_text = []
                 shared_text = []
-                nodes = content.find('p, header, span[role=presentation]')
+                if version == "original":
+                  nodes = content.find('div[data-ft] > div', first=True).find('p, header, span[role=presentation]')
+                else:
+                  nodes = content.find('p, header, span[role=presentation], div[data-ft]')
 
                 if version == "hidden_original":
                     if container_index == 0:
