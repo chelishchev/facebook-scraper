@@ -53,6 +53,10 @@ def set_cookies(cookies):
             raise exceptions.InvalidCookies(f"Cookies are not valid")
 
 
+def set_headers(headers: dict):
+    _scraper.session.headers.update(headers)
+
+
 def unset_cookies():
     # Explicitly unset cookies to return to unauthenticated requests
     _scraper.session.cookies = cookiejar_from_dict({})
