@@ -462,6 +462,7 @@ class PostExtractor:
             return None
 
     def extract_user_id(self) -> PartialPost:
+        user_id = self.data_ft.get("content_owner_id_new")
         match = None
         if self.full_post_html:
             pattern = re.compile(r'post_owner_id:"(\d+)"')
@@ -472,9 +473,17 @@ class PostExtractor:
                 if reply_link:
                     pattern = re.compile(r"comment_form_(\d+)_")
                     match = re.search(pattern, reply_link.html)
+            if not user_id and match:
+                user_id = match.group(1)
+        else:
+            profile_picture = self.element.find('div.story_body_container a > img.profpic', first=True)
+            if profile_picture:
+                feed_story_ring = profile_picture.element.getparent().getparent().attrib.get('data-sigil') # like "feed_story_ring1777891499"
+                if feed_story_ring:
+                    user_id = re.search(r'feed_story_ring(\d+)', feed_story_ring).group(1)
 
         return {
-            'user_id': self.data_ft.get("content_owner_id_new") or match.group(1) if match else None,
+            'user_id': user_id,
             'page_id': self.data_ft.get("page_id"),
         }
 
